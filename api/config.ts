@@ -8,6 +8,10 @@ const corsOrigin = process.env['CORS_ORIGIN'] || '*';
 const rateLimitMax = process.env['RATE_LIMIT_MAX'] || '100';
 const rateLimitWindow = process.env['RATE_LIMIT_WINDOW'] || '1 minute';
 
+// Pre-convert string values to numbers outside object definition for Vercel compatibility
+const cooldownPeriodNum = +cooldownPeriod;
+const rateLimitMaxNum = +rateLimitMax;
+
 export const config = {
   blockchain: {
     sepoliaRpcUrl,
@@ -17,7 +21,7 @@ export const config = {
   
   faucet: {
     ethAmount,
-    cooldownPeriod: +cooldownPeriod, // 24 hours in seconds
+    cooldownPeriod: cooldownPeriodNum, // 24 hours in seconds
   },
   
   cors: {
@@ -25,7 +29,7 @@ export const config = {
   },
   
   rateLimit: {
-    max: +rateLimitMax,
+    max: rateLimitMaxNum,
     timeWindow: rateLimitWindow,
   }
 };

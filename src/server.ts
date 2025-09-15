@@ -41,9 +41,11 @@ export async function createServer(): Promise<FastifyInstance> {
   if (config.nodeEnv === 'production') {
     try {
       const redisUrl = new URL(config.redis.url);
+      // Pre-convert port value outside object definition for Vercel compatibility
+      const redisPort = redisUrl.port ? +redisUrl.port : 6379;
       await server.register(redis, {
         host: redisUrl.hostname,
-        port: redisUrl.port ? +redisUrl.port : 6379,
+        port: redisPort,
         password: config.redis.password || '',
         db: config.redis.db,
       });

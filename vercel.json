@@ -1,17 +1,7 @@
 {
-  "version": 2,
   "functions": {
-    "api/index.ts": {
+    "api/*.ts": {
       "maxDuration": 30
     }
-  },
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/api"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
   }
 }

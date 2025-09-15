@@ -12,10 +12,12 @@ export async function createServerlessApp(): Promise<FastifyInstance> {
   });
 
   // Register basic plugins
-  const corsOrigin = process.env['CORS_ORIGIN'] || '*';
+  const corsOrigin = process.env['CORS_ORIGIN'] || ['https://w3e-faucet-front.vercel.app', 'http://localhost:3000', '*'];
   await server.register(cors, {
     origin: corsOrigin,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   await server.register(helmet, {
@@ -246,6 +248,87 @@ export async function createServerlessApp(): Promise<FastifyInstance> {
       };
     } catch (error) {
       console.error('Get history error:', error);
+      return reply.status(500).send({ error: 'Internal server error' });
+    }
+  });
+
+  // Get faucet statistics endpoint
+  server.get('/faucet/stats', async (request, reply) => {
+    try {
+      const { ServerlessClaimDataService } = await import('./claimData');
+      
+      // Get query parameter for specific user address
+      const query = request.query as { address?: string };
+      const address = query.address;
+
+      if (address) {
+        // Return user-specific stats
+        if (!ServerlessClaimDataService.validateAddress(address)) {
+          return reply.status(400).send({ error: 'Invalid address format' });
+        }
+
+        const userStats = ServerlessClaimDataService.getUserStats(address);
+        const userClaims = ServerlessClaimDataService.getUserClaims(address);
+        
+        // Calculate additional stats from user claims
+        const ethClaims = userClaims.filter(claim => claim.type === 'ETH');
+        const totalETHClaimed = ethClaims.reduce((sum, claim) => sum + parseFloat(claim.amount), 0);
+        
+        // Group token claims by token address
+        const tokenStats: Record<string, {
+          claims: number;
+          totalClaimed: string;
+          lastClaim?: string;
+        }> = {};
+        
+        const tokenClaims = userClaims.filter(claim => claim.type === 'TOKEN');
+        for (const claim of tokenClaims) {
+          const tokenAddress = claim.tokenAddress;
+          const tokenInfo = ServerlessClaimDataService.getToken(tokenAddress);
+          const tokenAmount = tokenInfo ? parseFloat(tokenInfo.amount) : parseFloat(claim.amount);
+          
+          if (!tokenStats[tokenAddress]) {
+            tokenStats[tokenAddress] = {
+              claims: 0,
+              totalClaimed: '0'
+            };
+          }
+          
+          tokenStats[tokenAddress]!.claims++;
+          const totalClaimedAmount = tokenAmount * tokenStats[tokenAddress]!.claims;
+          tokenStats[tokenAddress]!.totalClaimed = totalClaimedAmount.toString();
+          
+          if (!tokenStats[tokenAddress]!.lastClaim || claim.timestamp > new Date(tokenStats[tokenAddress]!.lastClaim!).getTime()) {
+            tokenStats[tokenAddress]!.lastClaim = new Date(claim.timestamp).toISOString();
+          }
+        }
+
+        return {
+          address,
+          totalClaims: userStats.totalClaims,
+          ethClaims: userStats.ethClaims,
+          tokenClaims: userStats.tokenClaims,
+          totalETHClaimed: totalETHClaimed.toString(),
+          tokenStats,
+          lastClaimTime: userStats.lastClaimTime
+        };
+      } else {
+        // Return basic global stats - simplified version since we don't have getAllClaims
+        const allTokens = ServerlessClaimDataService.getAllTokens();
+        
+        return {
+          message: 'Global statistics not available in serverless mode',
+          availableTokens: allTokens.map(token => ({
+            address: token.address,
+            symbol: token.symbol,
+            name: token.name,
+            amount: token.amount
+          })),
+          note: 'Use ?address=<wallet_address> to get user-specific statistics'
+        };
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
       return reply.status(500).send({ error: 'Internal server error' });
     }
   });

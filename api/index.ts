@@ -1,5 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { FastifyInstance } from 'fastify';
+import { createServerlessApp } from './server';
 
 // Import your Fastify app
 let app: FastifyInstance | null = null;
@@ -7,9 +8,8 @@ let app: FastifyInstance | null = null;
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
   try {
     if (!app) {
-      // Dynamically import your server to avoid issues with serverless
-      const { createServer } = await import('../src/server');
-      app = await createServer();
+      // Create serverless-compatible Fastify app
+      app = await createServerlessApp();
       await app.ready();
     }
 

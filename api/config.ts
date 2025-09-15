@@ -8,10 +8,6 @@ const corsOrigin = process.env['CORS_ORIGIN'] || '*';
 const rateLimitMax = process.env['RATE_LIMIT_MAX'] || '100';
 const rateLimitWindow = process.env['RATE_LIMIT_WINDOW'] || '1 minute';
 
-// Parse numeric values separately to avoid CallExpression issues
-const parsedCooldownPeriod = parseInt(cooldownPeriod);
-const parsedRateLimitMax = parseInt(rateLimitMax);
-
 export const config = {
   blockchain: {
     sepoliaRpcUrl,
@@ -21,7 +17,7 @@ export const config = {
   
   faucet: {
     ethAmount,
-    cooldownPeriod: parsedCooldownPeriod, // 24 hours in seconds
+    cooldownPeriod: Number(cooldownPeriod) || 86400, // 24 hours in seconds
   },
   
   cors: {
@@ -29,7 +25,7 @@ export const config = {
   },
   
   rateLimit: {
-    max: parsedRateLimitMax,
+    max: Number(rateLimitMax) || 100,
     timeWindow: rateLimitWindow,
   }
 };

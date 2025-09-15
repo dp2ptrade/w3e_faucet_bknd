@@ -43,7 +43,7 @@ export async function createServer(): Promise<FastifyInstance> {
       const redisUrl = new URL(config.redis.url);
       await server.register(redis, {
         host: redisUrl.hostname,
-        port: redisUrl.port ? Number(redisUrl.port) : 6379,
+        port: redisUrl.port ? +redisUrl.port : 6379,
         password: config.redis.password || '',
         db: config.redis.db,
       });

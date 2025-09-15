@@ -22,23 +22,16 @@ export class ServerlessBlockchainService {
 
   constructor() {
     // Initialize provider with Sepolia network
-    this.provider = new ethers.JsonRpcProvider(
-      process.env['SEPOLIA_RPC_URL'] || 'https://sepolia.infura.io/v3/your-key',
-      'sepolia'
-    );
+    const rpcUrl = process.env['SEPOLIA_RPC_URL'] || 'https://sepolia.infura.io/v3/your-key';
+    this.provider = new ethers.JsonRpcProvider(rpcUrl, 'sepolia');
     
     // Initialize wallet
-    this.wallet = new ethers.Wallet(
-      process.env['PRIVATE_KEY'] || '',
-      this.provider
-    );
+    const privateKey = process.env['PRIVATE_KEY'] || '';
+    this.wallet = new ethers.Wallet(privateKey, this.provider);
     
     // Initialize contract
-    this.faucetContract = new ethers.Contract(
-      process.env['FAUCET_CONTRACT_ADDRESS'] || '',
-      FAUCET_ABI,
-      this.wallet
-    );
+    const contractAddress = process.env['FAUCET_CONTRACT_ADDRESS'] || '';
+    this.faucetContract = new ethers.Contract(contractAddress, FAUCET_ABI, this.wallet);
   }
 
   async claimEth(recipientAddress: string): Promise<{ success: boolean; txHash?: string; error?: string }> {

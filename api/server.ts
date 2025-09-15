@@ -63,6 +63,15 @@ export async function createServerlessApp(): Promise<FastifyInstance> {
     }
   });
 
+  // Simple test endpoint
+  server.get('/test', async () => {
+    return {
+      message: 'API is working!',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0'
+    };
+  });
+
   // Environment info endpoint for debugging
   server.get('/env-info', async (request, reply) => {
     try {

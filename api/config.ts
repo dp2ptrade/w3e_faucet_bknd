@@ -1,35 +1,33 @@
 // Simple environment configuration for serverless deployment
-const sepoliaRpcUrl = process.env['SEPOLIA_RPC_URL'] || 'https://sepolia.infura.io/v3/your-key';
-const privateKey = process.env['PRIVATE_KEY'] || '';
-const faucetContractAddress = process.env['FAUCET_CONTRACT_ADDRESS'] || '';
-const ethAmount = process.env['ETH_AMOUNT'] || '0.1';
-const corsOrigin = process.env['CORS_ORIGIN'] || '*';
-const rateLimitMax = process.env['RATE_LIMIT_MAX'] || '100';
-const rateLimitWindow = process.env['RATE_LIMIT_WINDOW'] || '1 minute';
+// Use function to handle type conversions and avoid Vercel parsing issues
 
-// Pre-convert string values to numbers outside object definition for Vercel compatibility
-const rateLimitMaxNum = +rateLimitMax;
+function createConfig() {
+  const rateLimitMax = process.env['RATE_LIMIT_MAX'] || '100';
+  const rateLimitMaxNum = +rateLimitMax;
+  
+  return {
+    blockchain: {
+      sepoliaRpcUrl: process.env['SEPOLIA_RPC_URL'] || 'https://sepolia.infura.io/v3/your-key',
+      privateKey: process.env['PRIVATE_KEY'] || '',
+      faucetContractAddress: process.env['FAUCET_CONTRACT_ADDRESS'] || '',
+    },
+    
+    faucet: {
+      ethAmount: process.env['ETH_AMOUNT'] || '0.1',
+    },
+    
+    cors: {
+      origin: process.env['CORS_ORIGIN'] || '*',
+    },
+    
+    rateLimit: {
+      max: rateLimitMaxNum,
+      timeWindow: process.env['RATE_LIMIT_WINDOW'] || '1 minute',
+    }
+  };
+}
 
-export const config = {
-  blockchain: {
-    sepoliaRpcUrl,
-    privateKey,
-    faucetContractAddress,
-  },
-  
-  faucet: {
-    ethAmount,
-  },
-  
-  cors: {
-    origin: corsOrigin,
-  },
-  
-  rateLimit: {
-    max: rateLimitMaxNum,
-    timeWindow: rateLimitWindow,
-  }
-};
+export const config = createConfig();
 
 // Validation function to check if required environment variables are set
 export function validateEnvironment(): { isValid: boolean; missingVars: string[] } {

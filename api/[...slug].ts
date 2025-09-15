@@ -14,13 +14,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Handle the request using Fastify's inject method for serverless
-    // Strip /api prefix from URL since Vercel routes /api/* to this function
-    const url = req.url || '/';
-    const cleanUrl = url.startsWith('/api') ? url.substring(4) : url;
+    // For catch-all routes, reconstruct the path from slug parameters
+    const { slug } = req.query;
+    let path = '/';
+    
+    if (slug && Array.isArray(slug)) {
+      path = '/' + slug.join('/');
+    } else if (slug && typeof slug === 'string') {
+      path = '/' + slug;
+    }
+    
+    // Add query parameters if they exist (excluding the slug parameter)
+    const queryParams = new URLSearchParams();
+    Object.entries(req.query).forEach(([key, value]) => {
+      if (key !== 'slug' && value) {
+        if (Array.isArray(value)) {
+          value.forEach(v => queryParams.append(key, v));
+        } else {
+          queryParams.append(key, value);
+        }
+      }
+    });
+    
+    const queryString = queryParams.toString();
+    const fullPath = path + (queryString ? '?' + queryString : '');
     
     const response = await app.inject({
       method: req.method as any,
-      url: cleanUrl || '/',
+      url: fullPath,
       headers: req.headers as any,
       payload: req.body,
     });

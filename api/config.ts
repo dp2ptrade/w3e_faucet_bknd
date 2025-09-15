@@ -17,7 +17,7 @@ export const config = {
   
   faucet: {
     ethAmount,
-    cooldownPeriod: Number(cooldownPeriod) || 86400, // 24 hours in seconds
+    cooldownPeriod: Number(cooldownPeriod), // 24 hours in seconds
   },
   
   cors: {
@@ -25,7 +25,7 @@ export const config = {
   },
   
   rateLimit: {
-    max: Number(rateLimitMax) || 100,
+    max: Number(rateLimitMax),
     timeWindow: rateLimitWindow,
   }
 };

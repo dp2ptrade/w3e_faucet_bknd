@@ -2,7 +2,6 @@ import { FastifyInstance } from 'fastify';
 import { authRoutes } from './auth';
 import { faucetRoutes } from './faucet';
 import { adminRoutes } from './admin';
-import { powRoutes } from './pow';
 import { config } from '@/config/environment';
 
 export async function registerRoutes(server: FastifyInstance): Promise<void> {
@@ -12,7 +11,6 @@ export async function registerRoutes(server: FastifyInstance): Promise<void> {
   await server.register(authRoutes, { prefix: `${apiPrefix}/auth` });
   await server.register(faucetRoutes, { prefix: `${apiPrefix}/faucet` });
   await server.register(adminRoutes, { prefix: `${apiPrefix}/admin` });
-  await server.register(powRoutes, { prefix: `${apiPrefix}/pow` });
 
   // API documentation endpoint
   server.get(`${apiPrefix}/docs`, async () => {

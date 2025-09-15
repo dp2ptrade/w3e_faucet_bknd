@@ -14,9 +14,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Handle the request using Fastify's inject method for serverless
+    // Strip /api prefix from URL since Vercel routes /api/* to this function
+    const url = req.url || '/';
+    const cleanUrl = url.startsWith('/api') ? url.substring(4) : url;
+    
     const response = await app.inject({
       method: req.method as any,
-      url: req.url || '/',
+      url: cleanUrl || '/',
       headers: req.headers as any,
       payload: req.body,
     });

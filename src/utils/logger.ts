@@ -1,8 +1,9 @@
 import pino from 'pino';
 
 // Create logger instance
+const logLevel = process.env['LOG_LEVEL'] || 'info';
 export const logger = pino({
-  level: process.env['LOG_LEVEL'] || 'info',
+  level: logLevel,
   transport: {
     target: 'pino-pretty',
     options: {

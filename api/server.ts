@@ -12,8 +12,9 @@ export async function createServerlessApp(): Promise<FastifyInstance> {
   });
 
   // Register basic plugins
+  const corsOrigin = process.env['CORS_ORIGIN'] || '*';
   await server.register(cors, {
-    origin: process.env['CORS_ORIGIN'] || '*',
+    origin: corsOrigin,
     credentials: true,
   });
 

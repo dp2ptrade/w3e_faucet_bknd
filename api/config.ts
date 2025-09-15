@@ -1,23 +1,32 @@
 // Simple environment configuration for serverless deployment
+const sepoliaRpcUrl = process.env['SEPOLIA_RPC_URL'] || 'https://sepolia.infura.io/v3/your-key';
+const privateKey = process.env['PRIVATE_KEY'] || '';
+const faucetContractAddress = process.env['FAUCET_CONTRACT_ADDRESS'] || '';
+const ethAmount = process.env['ETH_AMOUNT'] || '0.1';
+const cooldownPeriod = process.env['COOLDOWN_PERIOD'] || '86400';
+const corsOrigin = process.env['CORS_ORIGIN'] || '*';
+const rateLimitMax = process.env['RATE_LIMIT_MAX'] || '100';
+const rateLimitWindow = process.env['RATE_LIMIT_WINDOW'] || '1 minute';
+
 export const config = {
   blockchain: {
-    sepoliaRpcUrl: process.env['SEPOLIA_RPC_URL'] || 'https://sepolia.infura.io/v3/your-key',
-    privateKey: process.env['PRIVATE_KEY'] || '',
-    faucetContractAddress: process.env['FAUCET_CONTRACT_ADDRESS'] || '',
+    sepoliaRpcUrl,
+    privateKey,
+    faucetContractAddress,
   },
   
   faucet: {
-    ethAmount: process.env['ETH_AMOUNT'] || '0.1',
-    cooldownPeriod: parseInt(process.env['COOLDOWN_PERIOD'] || '86400'), // 24 hours in seconds
+    ethAmount,
+    cooldownPeriod: parseInt(cooldownPeriod), // 24 hours in seconds
   },
   
   cors: {
-    origin: process.env['CORS_ORIGIN'] || '*',
+    origin: corsOrigin,
   },
   
   rateLimit: {
-    max: parseInt(process.env['RATE_LIMIT_MAX'] || '100'),
-    timeWindow: process.env['RATE_LIMIT_WINDOW'] || '1 minute',
+    max: parseInt(rateLimitMax),
+    timeWindow: rateLimitWindow,
   }
 };
 
@@ -40,9 +49,10 @@ export function validateEnvironment(): { isValid: boolean; missingVars: string[]
 // Helper function to get environment info for debugging
 export function getEnvironmentInfo() {
   const envValidation = validateEnvironment();
+  const nodeEnv = process.env['NODE_ENV'] || 'development';
   
   return {
-    nodeEnv: process.env['NODE_ENV'] || 'development',
+    nodeEnv,
     hasRequiredVars: envValidation.isValid,
     missingVars: envValidation.missingVars,
     rpcUrl: process.env['SEPOLIA_RPC_URL'] ? 'Set' : 'Missing',

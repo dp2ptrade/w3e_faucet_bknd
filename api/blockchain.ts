@@ -23,19 +23,19 @@ export class ServerlessBlockchainService {
   constructor() {
     // Initialize provider with Sepolia network
     this.provider = new ethers.JsonRpcProvider(
-      process.env.SEPOLIA_RPC_URL || 'https://sepolia.infura.io/v3/your-key',
+      process.env['SEPOLIA_RPC_URL'] || 'https://sepolia.infura.io/v3/your-key',
       'sepolia'
     );
     
     // Initialize wallet
     this.wallet = new ethers.Wallet(
-      process.env.PRIVATE_KEY || '',
+      process.env['PRIVATE_KEY'] || '',
       this.provider
     );
     
     // Initialize contract
     this.faucetContract = new ethers.Contract(
-      process.env.FAUCET_CONTRACT_ADDRESS || '',
+      process.env['FAUCET_CONTRACT_ADDRESS'] || '',
       FAUCET_ABI,
       this.wallet
     );
@@ -49,7 +49,7 @@ export class ServerlessBlockchainService {
       }
 
       // Check if user is blacklisted
-      const isBlacklisted = await this.faucetContract.blacklisted(recipientAddress);
+      const isBlacklisted = await this.faucetContract['blacklisted']!(recipientAddress);
       if (isBlacklisted) {
         return { success: false, error: 'Address is blacklisted' };
       }
@@ -64,7 +64,7 @@ export class ServerlessBlockchainService {
       }
 
       // Execute claim
-      const tx = await this.faucetContract.claimEthFor(recipientAddress);
+      const tx = await this.faucetContract['claimEthFor']!(recipientAddress);
       await tx.wait();
 
       return { success: true, txHash: tx.hash };
@@ -82,13 +82,13 @@ export class ServerlessBlockchainService {
       }
 
       // Check if user is blacklisted
-      const isBlacklisted = await this.faucetContract.blacklisted(recipientAddress);
+      const isBlacklisted = await this.faucetContract['blacklisted']!(recipientAddress);
       if (isBlacklisted) {
         return { success: false, error: 'Address is blacklisted' };
       }
 
       // Check if token is supported
-      const tokenInfo = await this.faucetContract.supportedTokens(tokenAddress);
+      const tokenInfo = await this.faucetContract['supportedTokens']!(tokenAddress);
       if (!tokenInfo.active) {
         return { success: false, error: 'Token not supported' };
       }
@@ -103,7 +103,7 @@ export class ServerlessBlockchainService {
       }
 
       // Execute claim
-      const tx = await this.faucetContract.claimTokenFor(tokenAddress, recipientAddress);
+      const tx = await this.faucetContract['claimTokenFor']!(tokenAddress, recipientAddress);
       await tx.wait();
 
       return { success: true, txHash: tx.hash };
@@ -115,7 +115,7 @@ export class ServerlessBlockchainService {
 
   async canClaimEth(address: string): Promise<{ canClaim: boolean; remainingTime?: number }> {
     try {
-      const lastClaimTime = await this.faucetContract.lastEthClaimTime(address);
+      const lastClaimTime = await this.faucetContract['lastEthClaimTime']!(address);
       const cooldownPeriod = 24 * 60 * 60; // 24 hours in seconds
       const currentTime = Math.floor(Date.now() / 1000);
       const timeSinceLastClaim = currentTime - Number(lastClaimTime);
@@ -134,8 +134,8 @@ export class ServerlessBlockchainService {
 
   async canClaimToken(address: string, tokenAddress: string): Promise<{ canClaim: boolean; remainingTime?: number }> {
     try {
-      const lastClaimTime = await this.faucetContract.lastClaimTime(address, tokenAddress);
-      const tokenInfo = await this.faucetContract.supportedTokens(tokenAddress);
+      const lastClaimTime = await this.faucetContract['lastClaimTime']!(address, tokenAddress);
+      const tokenInfo = await this.faucetContract['supportedTokens']!(tokenAddress);
       const cooldownPeriod = Number(tokenInfo.cooldown);
       const currentTime = Math.floor(Date.now() / 1000);
       const timeSinceLastClaim = currentTime - Number(lastClaimTime);
@@ -154,7 +154,7 @@ export class ServerlessBlockchainService {
 
   async getEthAmount(): Promise<string> {
     try {
-      const amount = await this.faucetContract.ethAmount();
+      const amount = await this.faucetContract['ethAmount']!();
       return ethers.formatEther(amount);
     } catch (error) {
       console.error('Error getting ETH amount:', error);
@@ -164,7 +164,7 @@ export class ServerlessBlockchainService {
 
   async getTokenInfo(tokenAddress: string): Promise<{ amount: string; cooldown: number; active: boolean }> {
     try {
-      const tokenInfo = await this.faucetContract.supportedTokens(tokenAddress);
+      const tokenInfo = await this.faucetContract['supportedTokens']!(tokenAddress);
       return {
         amount: ethers.formatUnits(tokenInfo.amount, 18), // Assuming 18 decimals
         cooldown: Number(tokenInfo.cooldown),

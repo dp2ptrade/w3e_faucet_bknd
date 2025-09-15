@@ -106,12 +106,22 @@ export class ServerlessClaimDataService {
       ? Math.max(...userClaims.map(claim => claim.timestamp))
       : undefined;
 
-    return {
+    const result: {
+      totalClaims: number;
+      ethClaims: number;
+      tokenClaims: number;
+      lastClaimTime?: number;
+    } = {
       totalClaims: userClaims.length,
       ethClaims,
-      tokenClaims,
-      lastClaimTime
+      tokenClaims
     };
+
+    if (lastClaimTime !== undefined) {
+      result.lastClaimTime = lastClaimTime;
+    }
+
+    return result;
   }
 
   static validateAddress(address: string): boolean {

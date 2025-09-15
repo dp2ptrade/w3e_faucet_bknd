@@ -1,23 +1,23 @@
 // Simple environment configuration for serverless deployment
 export const config = {
   blockchain: {
-    sepoliaRpcUrl: process.env.SEPOLIA_RPC_URL || 'https://sepolia.infura.io/v3/your-key',
-    privateKey: process.env.PRIVATE_KEY || '',
-    faucetContractAddress: process.env.FAUCET_CONTRACT_ADDRESS || '',
+    sepoliaRpcUrl: process.env['SEPOLIA_RPC_URL'] || 'https://sepolia.infura.io/v3/your-key',
+    privateKey: process.env['PRIVATE_KEY'] || '',
+    faucetContractAddress: process.env['FAUCET_CONTRACT_ADDRESS'] || '',
   },
   
   faucet: {
-    ethAmount: process.env.ETH_AMOUNT || '0.1',
-    cooldownPeriod: parseInt(process.env.COOLDOWN_PERIOD || '86400'), // 24 hours in seconds
+    ethAmount: process.env['ETH_AMOUNT'] || '0.1',
+    cooldownPeriod: parseInt(process.env['COOLDOWN_PERIOD'] || '86400'), // 24 hours in seconds
   },
   
   cors: {
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: process.env['CORS_ORIGIN'] || '*',
   },
   
   rateLimit: {
-    max: parseInt(process.env.RATE_LIMIT_MAX || '100'),
-    timeWindow: process.env.RATE_LIMIT_WINDOW || '1 minute',
+    max: parseInt(process.env['RATE_LIMIT_MAX'] || '100'),
+    timeWindow: process.env['RATE_LIMIT_WINDOW'] || '1 minute',
   }
 };
 
@@ -42,11 +42,11 @@ export function getEnvironmentInfo() {
   const envValidation = validateEnvironment();
   
   return {
-    nodeEnv: process.env.NODE_ENV || 'development',
+    nodeEnv: process.env['NODE_ENV'] || 'development',
     hasRequiredVars: envValidation.isValid,
     missingVars: envValidation.missingVars,
-    rpcUrl: process.env.SEPOLIA_RPC_URL ? 'Set' : 'Missing',
-    privateKey: process.env.PRIVATE_KEY ? 'Set' : 'Missing',
-    contractAddress: process.env.FAUCET_CONTRACT_ADDRESS ? 'Set' : 'Missing',
+    rpcUrl: process.env['SEPOLIA_RPC_URL'] ? 'Set' : 'Missing',
+    privateKey: process.env['PRIVATE_KEY'] ? 'Set' : 'Missing',
+    contractAddress: process.env['FAUCET_CONTRACT_ADDRESS'] ? 'Set' : 'Missing',
   };
 }
